@@ -26,6 +26,7 @@ function hook_call_constructors() {
                 let soinfo = args[0];
                 let soname = get_soname(soinfo).readCString();
                 if(soname!=null && !soflags.includes(soname)){
+                    // console.log(soname);
                     if(soname.indexOf("libil2cpp.so")!=-1){
                         dump_class();
                     }
@@ -60,7 +61,6 @@ function get_class_info(){
     let kclazz,kclazz_name,namespace,method,method_name,method_pointer,param_count,param,param_type,p_name,mstr,pclazz;
     const il2cpp_class_get_namespace = new NativeFunction(il2cpp_base.add(il2cpp_api["il2cpp_class_get_namespace"]),"pointer",["pointer"]);
     const il2cpp_class_get_name = new NativeFunction(il2cpp_base.add(il2cpp_api["il2cpp_class_get_name"]),"pointer",["pointer"]);
-    const il2cpp_class_get_type = new NativeFunction(il2cpp_base.add(il2cpp_api["il2cpp_class_get_type"]),"pointer",["pointer"]);
     const il2cpp_method_get_name = new NativeFunction(il2cpp_base.add(il2cpp_api["il2cpp_method_get_name"]),"pointer",["pointer"]);
     const il2cpp_class_get_methods = new NativeFunction(il2cpp_base.add(il2cpp_api["il2cpp_class_get_methods"]),"pointer",["pointer","pointer"]);
     const il2cpp_method_get_param_count = new NativeFunction(il2cpp_base.add(il2cpp_api["il2cpp_method_get_param_count"]),"int32",["pointer"]);
@@ -85,8 +85,7 @@ function get_class_info(){
             mstr += method_name + "(";
             for(let i=0;i<param_count;i++){
                 param = il2cpp_method_get_param(method,i);
-                param_type = il2cpp_class_get_type(param);
-                pclazz = il2cpp_class_from_type(param_type);
+                pclazz = il2cpp_class_from_type(param);
                 if(!pclazz.isNull()){
                     p_name = il2cpp_class_get_name(pclazz).readCString();
                     mstr += p_name+","
@@ -103,24 +102,27 @@ function get_class_info(){
     console.log("success dump all,save to "+path);
 }
 
+
 function main(){
     hook_call_constructors();
 }
  
 //等游戏完全加载完成后主动调用get_class_info方法即可
 //il2cpp_api,package_name,InitLocked_pianyi需要改动
+
 var il2cpp_api = {
-    "il2cpp_class_get_methods":0x42b52c8,  
-    "il2cpp_method_get_name":0x42b44bc,    
-    "il2cpp_class_get_name":0x42b4370,     
-    "il2cpp_class_get_type":0x42b43f8,     
-    "il2cpp_class_get_namespace":0x42b4384,
-    "il2cpp_method_get_param":0x42b44d8,   
-    "il2cpp_method_get_param_count":0x42b44d4,
-    "il2cpp_class_from_type":0x42b44d4,
+    "il2cpp_class_get_methods":0x4390c08,  
+    "il2cpp_method_get_name":0x438df98,    
+    "il2cpp_class_get_name":0x438de4c,     
+    "il2cpp_class_get_type":0x438dedc,     
+    "il2cpp_class_get_namespace":0x438de60,
+    "il2cpp_method_get_param":0x438dfb4,   
+    "il2cpp_method_get_param_count":0x438dfb0,
+    "il2cpp_class_from_type":0x438ded4,
     };
 var package_name = "com.netease.l22";
-var InitLocked_pianyi = 0x42B8E4C;//搜索because generic types cannot have explicit layout.定位
+var InitLocked_pianyi = 0x4392928;//搜索because generic types cannot have explicit layout.定位
+
 
 var kclazzs = [];
 main();
